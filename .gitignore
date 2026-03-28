@@ -1,5 +1,26 @@
+# Python
 __pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Model files (quá nặng, dùng download_model.py để tải)
+*.gguf
 model-12k/
 distil-model/
-*.gguf
-.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
