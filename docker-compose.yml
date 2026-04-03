@@ -10,7 +10,13 @@ services:
     volumes:
       - ollama_data:/root/.ollama
     restart: unless-stopped
-    # CPU only — no GPU reservations
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   # ---- FastAPI Backend ----
   api:

@@ -7,6 +7,7 @@ import pandas as pd
 from model_client import DistilLabsLLM
 
 def load_csv_to_sqlite(csv_paths: list[str], conn: sqlite3.Connection) -> dict[str, str]:
+    """Load multiple CSV files into an in-memory SQLite database and return their schemas."""
     schemas = {}
     for csv_path in csv_paths:
         path = Path(csv_path)
@@ -30,12 +31,15 @@ def load_csv_to_sqlite(csv_paths: list[str], conn: sqlite3.Connection) -> dict[s
     return schemas
 
 def format_question(schema: str, question: str) -> str:
+    """Format the database schema and natural language question into a prompt."""
     return f"""Schema:\n{schema}\n\nQuestion: {question}"""
 
 def execute_query(conn: sqlite3.Connection, sql: str) -> pd.DataFrame:
+    """Execute a SQL query against the SQLite connection and return results as a DataFrame."""
     return pd.read_sql_query(sql, conn)
 
 def main():
+    """Main entry point for the CLI tool to query CSV data."""
     parser = argparse.ArgumentParser(description="Text2SQL: Query CSV data using natural language")
     parser.add_argument("--csv", type=str, action="append", required=True)
     parser.add_argument("--question", type=str, required=True)
