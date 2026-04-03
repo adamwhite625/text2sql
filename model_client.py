@@ -38,6 +38,28 @@ class DistilLabsLLM(object):
         )
 
     def get_prompt(self, question: str) -> list[dict[str, str]]:
+        """Construct the appropriate prompt based on the target model's training background."""
+        # Restore original training environment for text2sql-12k model
+        if "text2sql-12k" in self.model_name:
+            import re
+            # Remove Sample Data comments (unknown to model during training)
+            clean_question = re.sub(r'-- Sample:.*\n', '', question)
+            
+            # Use exact training prompt structure without system role
+            system_prompt = """You are a problem solving model working on task_description XML block:
+<task_description>You are given a database schema and a natural language question.
+Generate the SQL query that answers the question.
+Input: Schema and Question. Output: A single SQL query. No explanations.</task_description>
+Solve only the task in question block. Generate only the answer."""
+            
+            return [
+                {
+                    "role": "user",
+                    "content": f"{system_prompt}\n\nNow for the real task, solve the task in question block.\nGenerate only the solution, do not generate anything else\n<question>{clean_question}</question>\n",
+                }
+            ]
+            
+        # Optimized default prompt for Gemma 2 Base and GPT-4o-mini
         return [
             {
                 "role": "system",
@@ -79,12 +101,16 @@ Generate only the solution, do not generate anything else
             },
         ]
 
+    def format_question(self, schema: str, question: str) -> str:
+        """Combine schema and question into a single input string."""
+        return f"Schema:\n{schema}\n\nQuestion: {question}"
+
     def invoke(self, question: str) -> str:
+        """Send a question to the LLM and return the raw response content."""
         chat_response = self.client.chat.completions.create(
             model=self.model_name,
             messages=self.get_prompt(question),
             temperature=0,
-            reasoning_effort="none",
         )
         return chat_response.choices[0].message.content
 

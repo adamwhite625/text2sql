@@ -156,6 +156,7 @@ def load_csv_to_sqlite(csv_path: str, conn: sqlite3.Connection) -> tuple[str, st
 
 
 def format_question(schema: str, question: str) -> str:
+    """Format the schema and question into a single prompt string."""
     return f"Schema:\n{schema}\n\nQuestion: {question}"
 
 
@@ -194,6 +195,7 @@ def fix_missing_group_by_columns(sql: str) -> str:
 
 
 def execute_query(conn: sqlite3.Connection, sql: str) -> pd.DataFrame:
+    """Execute the given SQL query on the SQLite connection and return a DataFrame."""
     return pd.read_sql_query(sql, conn)
 
 
