@@ -20,7 +20,7 @@ from model_client import DistilLabsLLM
 # ---------------------------------------------------------------------------
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "127.0.0.1")
 OLLAMA_PORT = int(os.getenv("OLLAMA_PORT", "11434"))
-MODEL_NAME = os.getenv("MODEL_NAME", "text2sql-12k")
+MODEL_NAME = os.getenv("MODEL_NAME", "hf.co/adamwhite625/gemma-2-2b-text2sql-v3-spider-augmented")
 API_KEY = os.getenv("API_KEY", "EMPTY")
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "./uploads"))
 
@@ -156,8 +156,25 @@ def load_csv_to_sqlite(csv_path: str, conn: sqlite3.Connection) -> tuple[str, st
 
 
 def format_question(schema: str, question: str) -> str:
-    """Format the schema and question into a single prompt string."""
-    return f"Schema:\n{schema}\n\nQuestion: {question}"
+    """Format the schema and question into a structured few-shot prompt."""
+    return (
+        "Instructions:\n"
+        "1. You are a Text2SQL engine. Output ONLY raw SQL for SQLite.\n"
+        "2. For comparisons with averages, always use a subquery in the WHERE clause.\n\n"
+        "Example 1:\n"
+        "Question: List projects with a budget higher than the average.\n"
+        "SQL: SELECT name FROM projects WHERE budget > (SELECT AVG(budget) FROM projects)\n\n"
+        "Example 2:\n"
+        "Question: Show employees earning more than the average salary.\n"
+        "SQL: SELECT name FROM employees WHERE salary > (SELECT AVG(salary) FROM employees)\n\n"
+        "Current Task:\n"
+        f"Schema:\n{schema}\n\n"
+        f"Question: {question}\n\n"
+        "Critical Rules:\n"
+        "- NEVER put 'HAVING' inside the 'SELECT' clause.\n"
+        "- Do not include markdown formatting or explanations.\n"
+        "SQL:"
+    )
 
 
 def fix_missing_group_by_columns(sql: str) -> str:
