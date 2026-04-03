@@ -144,9 +144,3 @@ Provides a clean interface for schema overview, CSV uploading, and real-time que
 Demonstrates the model's cross-lingual capability, translating Vietnamese natural language into accurate SQL subqueries.
 
 ![Vietnamese Query Support](./demo/vietnamese_query.png)
-
-## 8. Contact and Audit Report
-
-For an in-depth breakdown of per-question performance and execution logs, refer to the [Detailed Audit Report](./evaluation/FINAL_AUDIT_REPORT.md).
-
-Developed by Adam White.
